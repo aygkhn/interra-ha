@@ -30,10 +30,12 @@ _LOGGER = logging.getLogger(__name__)
 
 class InterraClient:
     def __init__(self, host, port, username, password, local_host=None, local_port=None):
-        # Bağlantı adayları: önce public, erişilemezse local (ör. Pi'ye ağ kablosu takılınca)
-        self._candidates = [(host, int(port))]
+        # Bağlantı adayları: önce YEREL (ağ kablosu/LAN — hızlı ve güvenilir),
+        # erişilemezse PUBLIC (internet). Her yeniden bağlanmada yerel tekrar denenir.
+        self._candidates = []
         if local_host:
             self._candidates.append((local_host, int(local_port or port)))
+        self._candidates.append((host, int(port)))
         self._active = self._candidates[0]
         self._user = username
         self._pass = password
@@ -70,9 +72,11 @@ class InterraClient:
     def _connect(self):
         # Adayları sırayla dene (public -> local); ilk bağlananı kullan
         last_err = None
+        # Birden çok aday varsa ölü yereli hızlı geçmek için kısa timeout
+        timeout = 5 if len(self._candidates) > 1 else 12
         for host, port in self._candidates:
             try:
-                self._sock = socket.create_connection((host, port), timeout=10)
+                self._sock = socket.create_connection((host, port), timeout=timeout)
                 self._sock.settimeout(None)
                 self._active = (host, port)
                 self._auth = None

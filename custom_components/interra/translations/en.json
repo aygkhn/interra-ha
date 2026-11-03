@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Interra panel",
-        "description": "Enter your Interra panel connection. Add a local IP to fall back to when the public address is unreachable.",
+        "description": "Enter your Interra panel connection. If you add a local IP, it is tried first (LAN cable); the public address is the fallback.",
         "data": {
           "host": "Server IP / host",
           "port": "Port",

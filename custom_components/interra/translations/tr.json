@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Interra paneli",
-        "description": "Interra panel bağlantısı. Public adrese erişilemezse denenecek yerel IP'yi de ekleyebilirsiniz.",
+        "description": "Interra panel bağlantısı. Yerel IP girerseniz önce o denenir (ağ kablosu/LAN); public adres yedektir.",
         "data": {
           "host": "Sunucu IP / adres",
           "port": "Port",

@@ -38,12 +38,13 @@ class InterraConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None) -> ConfigFlowResult:
         errors = {}
         if user_input is not None:
-            cands = [(user_input[CONF_HOST], user_input[CONF_PORT])]
+            cands = []
             if user_input.get(CONF_LOCAL_HOST):
                 cands.append(
                     (user_input[CONF_LOCAL_HOST],
                      user_input.get(CONF_LOCAL_PORT) or user_input[CONF_PORT])
                 )
+            cands.append((user_input[CONF_HOST], user_input[CONF_PORT]))
             try:
                 await self.hass.async_add_executor_job(_test, cands)
             except OSError:
