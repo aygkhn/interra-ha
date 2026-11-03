@@ -43,6 +43,7 @@ OT_TO_FLAG = {1: 1, 2: 3, 3: 2, 4: 6, 5: 17, 7: 5, 27: 1}
 VALUE_KEYS = {"MaxValue", "MinValue", "ValueType", "SendValueStep"}
 
 ACK_INTERVAL = 200  # sn
+POLL_INTERVAL = 5   # sn — durum yoklaması (push güvenilmezse HA senkron kalsın)
 
 SIGNAL_UPDATE = "interra_update_{}"       # cihaz id'si ile biçimlenir
 SIGNAL_CONN = "interra_connection"        # bağlantı durumu

@@ -14,6 +14,7 @@ from typing import Callable
 
 from .const import (
     ACK_INTERVAL,
+    POLL_INTERVAL,
     COVER_TYPES,
     OT_TO_FLAG,
     REQ_DB,
@@ -57,6 +58,17 @@ class InterraClient:
     def start(self):
         threading.Thread(target=self._run, name="interra-client", daemon=True).start()
         threading.Thread(target=self._ack_loop, name="interra-ack", daemon=True).start()
+        threading.Thread(target=self._poll_loop, name="interra-poll", daemon=True).start()
+
+    def _poll_loop(self):
+        """Durumu periyodik yokla — push gelmese de HA panelle senkron kalır."""
+        while not self._stop.is_set():
+            time.sleep(POLL_INTERVAL)
+            try:
+                if self._auth:
+                    self.request_status()
+            except Exception:  # noqa: BLE001
+                pass
 
     def stop(self):
         self._stop.set()
