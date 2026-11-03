@@ -53,6 +53,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = client
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # Entity'ler kurulduktan sonra anlık durumu tazele (başlangıç yarışına karşı)
+    await hass.async_add_executor_job(client.request_status)
     return True
 
 

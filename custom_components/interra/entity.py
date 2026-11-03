@@ -42,6 +42,10 @@ class InterraEntity(Entity):
         self.async_on_remove(
             async_dispatcher_connect(self.hass, SIGNAL_CONN, self._handle_conn)
         )
+        # Başlangıç durumu: kurulumdan önce gelmiş olabilir, saklanandan oku
+        stored = self._client.states.get(self._id)
+        if stored is not None:
+            self._handle_update(stored[0], stored[1])
 
     def _handle_conn(self, ok: bool) -> None:
         self._attr_available = ok

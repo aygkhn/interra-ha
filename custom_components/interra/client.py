@@ -47,6 +47,7 @@ class InterraClient:
         self._ready = threading.Event()
 
         self.devices: dict[int, dict] = {}
+        self.states: dict[int, tuple] = {}  # id -> (is_active, raw); başlangıç yarışına karşı
         # callback'ler (HA tarafı bağlar)
         self.on_devices: Callable[[], None] | None = None
         self.on_state: Callable[[int, bool | None, str | None], None] | None = None
@@ -196,8 +197,19 @@ class InterraClient:
         for s in arr:
             if not s or s.get("id") is None:
                 continue
+            raw = s.get("readValueStatus", s.get("readValue"))
+            self.states[s["id"]] = (s.get("isActive"), raw)  # sakla (entity add'de okunur)
             if self.on_state:
-                self.on_state(s["id"], s.get("isActive"), s.get("readValueStatus", s.get("readValue")))
+                self.on_state(s["id"], s.get("isActive"), raw)
+
+    def request_status(self):
+        """Entity'ler kurulduktan sonra anlık durumu yeniden iste (yarışa karşı)."""
+        if not self._auth:
+            return
+        pairs = {(d["location"], d["type"]) for d in self.devices.values()}
+        for loc, ot in pairs:
+            self._send({"data": {"id": str(loc), "objectType": str(ot)},
+                        "meta": {"requestType": REQ_STATUS, "authID": self._auth}})
 
     # ---- komutlar ----
     def action(self, dev_id, action_type, value=0):
