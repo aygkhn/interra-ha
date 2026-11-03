@@ -90,7 +90,9 @@ class InterraClient:
         for host, port in self._candidates:
             try:
                 self._sock = socket.create_connection((host, port), timeout=timeout)
-                self._sock.settimeout(None)
+                # Okuma zaman aşımı: poll her ~5sn veri akıtır; 30sn veri yoksa
+                # bağlantı ölü (TCP yarı-açık) sayılır ve yeniden bağlanılır.
+                self._sock.settimeout(30)
                 self._active = (host, port)
                 self._auth = None
                 self._buf = b""
