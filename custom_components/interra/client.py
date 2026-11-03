@@ -29,9 +29,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class InterraClient:
-    def __init__(self, host, port, username, password):
-        self._host = host
-        self._port = int(port)
+    def __init__(self, host, port, username, password, local_host=None, local_port=None):
+        # Bağlantı adayları: önce public, erişilemezse local (ör. Pi'ye ağ kablosu takılınca)
+        self._candidates = [(host, int(port))]
+        if local_host:
+            self._candidates.append((local_host, int(local_port or port)))
+        self._active = self._candidates[0]
         self._user = username
         self._pass = password
         self._sock: socket.socket | None = None
@@ -65,13 +68,23 @@ class InterraClient:
 
     # ---- bağlantı ----
     def _connect(self):
-        self._sock = socket.create_connection((self._host, self._port), timeout=15)
-        self._sock.settimeout(None)
-        self._auth = None
-        self._buf = b""
-        _LOGGER.info("Interra bağlandı %s:%s", self._host, self._port)
-        self._send({"data": {"userName": self._user, "password": self._pass},
-                    "meta": {"requestType": REQ_LOGIN, "authID": None}})
+        # Adayları sırayla dene (public -> local); ilk bağlananı kullan
+        last_err = None
+        for host, port in self._candidates:
+            try:
+                self._sock = socket.create_connection((host, port), timeout=10)
+                self._sock.settimeout(None)
+                self._active = (host, port)
+                self._auth = None
+                self._buf = b""
+                _LOGGER.info("Interra bağlandı %s:%s", host, port)
+                self._send({"data": {"userName": self._user, "password": self._pass},
+                            "meta": {"requestType": REQ_LOGIN, "authID": None}})
+                return
+            except OSError as err:
+                last_err = err
+                _LOGGER.warning("Interra %s:%s erişilemedi (%s)", host, port, err)
+        raise last_err or ConnectionError("bağlantı adayı yok")
 
     def _run(self):
         while not self._stop.is_set():

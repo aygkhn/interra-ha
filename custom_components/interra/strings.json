@@ -3,12 +3,14 @@
     "step": {
       "user": {
         "title": "Interra paneli",
-        "description": "Interra panelinizin bağlantı bilgilerini girin.",
+        "description": "Interra panel bağlantısı. Public adrese erişilemezse denenecek yerel IP'yi de ekleyebilirsiniz.",
         "data": {
           "host": "Sunucu IP / adres",
           "port": "Port",
           "username": "Kullanıcı adı",
-          "password": "Şifre"
+          "password": "Şifre",
+          "local_host": "Yerel IP (isteğe bağlı)",
+          "local_port": "Yerel port (isteğe bağlı)"
         }
       }
     },

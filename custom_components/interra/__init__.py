@@ -11,6 +11,8 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from .client import InterraClient
 from .const import (
     CONF_HOST,
+    CONF_LOCAL_HOST,
+    CONF_LOCAL_PORT,
     CONF_PASSWORD,
     CONF_PORT,
     CONF_USERNAME,
@@ -28,6 +30,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client = InterraClient(
         data[CONF_HOST], data.get(CONF_PORT, 2083),
         data[CONF_USERNAME], data[CONF_PASSWORD],
+        local_host=data.get(CONF_LOCAL_HOST) or None,
+        local_port=data.get(CONF_LOCAL_PORT) or None,
     )
 
     @callback

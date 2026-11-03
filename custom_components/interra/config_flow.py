@@ -9,6 +9,8 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 
 from .const import (
     CONF_HOST,
+    CONF_LOCAL_HOST,
+    CONF_LOCAL_PORT,
     CONF_PASSWORD,
     CONF_PORT,
     CONF_USERNAME,
@@ -17,9 +19,17 @@ from .const import (
 )
 
 
-def _test(host, port):
-    s = socket.create_connection((host, int(port)), timeout=8)
-    s.close()
+def _test(candidates):
+    """Adaylardan en az biri bağlanabiliyor mu."""
+    last = None
+    for host, port in candidates:
+        try:
+            s = socket.create_connection((host, int(port)), timeout=8)
+            s.close()
+            return
+        except OSError as err:
+            last = err
+    raise last or OSError("no host")
 
 
 class InterraConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -28,10 +38,14 @@ class InterraConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None) -> ConfigFlowResult:
         errors = {}
         if user_input is not None:
-            try:
-                await self.hass.async_add_executor_job(
-                    _test, user_input[CONF_HOST], user_input[CONF_PORT]
+            cands = [(user_input[CONF_HOST], user_input[CONF_PORT])]
+            if user_input.get(CONF_LOCAL_HOST):
+                cands.append(
+                    (user_input[CONF_LOCAL_HOST],
+                     user_input.get(CONF_LOCAL_PORT) or user_input[CONF_PORT])
                 )
+            try:
+                await self.hass.async_add_executor_job(_test, cands)
             except OSError:
                 errors["base"] = "cannot_connect"
             else:
@@ -43,6 +57,8 @@ class InterraConfigFlow(ConfigFlow, domain=DOMAIN):
             {
                 vol.Required(CONF_HOST): str,
                 vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
+                vol.Optional(CONF_LOCAL_HOST): str,
+                vol.Optional(CONF_LOCAL_PORT): int,
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
             }

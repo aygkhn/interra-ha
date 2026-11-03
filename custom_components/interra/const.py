@@ -3,6 +3,8 @@ DOMAIN = "interra"
 
 CONF_HOST = "host"
 CONF_PORT = "port"
+CONF_LOCAL_HOST = "local_host"
+CONF_LOCAL_PORT = "local_port"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 

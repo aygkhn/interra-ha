@@ -1,10 +1,12 @@
 {
   "domain": "interra",
   "name": "Interra",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "config_flow": true,
   "single_config_entry": true,
-  "codeowners": ["@aygkhn"],
+  "codeowners": [
+    "@aygkhn"
+  ],
   "dependencies": [],
   "documentation": "https://github.com/aygkhn/interra-ha",
   "integration_type": "hub",
