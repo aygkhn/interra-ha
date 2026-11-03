@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Interra paneli",
+        "description": "Interra panelinizin bağlantı bilgilerini girin.",
+        "data": {
+          "host": "Sunucu IP / adres",
+          "port": "Port",
+          "username": "Kullanıcı adı",
+          "password": "Şifre"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Panele bağlanılamadı. IP ve port'u kontrol edin."
+    },
+    "abort": {
+      "already_configured": "Interra zaten yapılandırılmış."
+    }
+  }
+}

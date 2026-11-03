@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Interra panel",
+        "description": "Enter your Interra panel connection details.",
+        "data": {
+          "host": "Server IP / host",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the panel. Check IP and port."
+    },
+    "abort": {
+      "already_configured": "Interra is already configured."
+    }
+  }
+}
