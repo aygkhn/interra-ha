@@ -28,6 +28,7 @@ class InterraCover(InterraEntity, CoverEntity):
     _attr_supported_features = (
         CoverEntityFeature.OPEN | CoverEntityFeature.CLOSE | CoverEntityFeature.STOP
     )
+    _attr_assumed_state = True  # komut-bazlı (konum yok) -> her zaman yukarı/dur/aşağı göster
 
     def __init__(self, client, dev_id, info):
         super().__init__(client, dev_id, info)

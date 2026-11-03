@@ -1,7 +1,7 @@
 {
   "domain": "interra",
   "name": "Interra",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "config_flow": true,
   "single_config_entry": true,
   "codeowners": [
