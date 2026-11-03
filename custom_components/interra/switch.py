@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .client import InterraClient
@@ -25,6 +25,7 @@ class InterraSwitch(InterraEntity, SwitchEntity):
         super().__init__(client, dev_id, info)
         self._attr_is_on = False
 
+    @callback
     def _handle_update(self, is_active, raw) -> None:
         if is_active is not None:
             self._attr_is_on = bool(is_active)

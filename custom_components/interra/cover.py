@@ -7,7 +7,7 @@ from homeassistant.components.cover import (
     CoverEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .client import InterraClient
@@ -41,6 +41,7 @@ class InterraCover(InterraEntity, CoverEntity):
     def is_closed(self) -> bool | None:
         return self._closed
 
+    @callback
     def _handle_update(self, is_active, raw) -> None:
         if is_active is not None:
             self._closed = not bool(is_active)

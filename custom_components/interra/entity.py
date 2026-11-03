@@ -1,6 +1,7 @@
 """Interra ortak entity temeli."""
 from __future__ import annotations
 
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
@@ -47,10 +48,12 @@ class InterraEntity(Entity):
         if stored is not None:
             self._handle_update(stored[0], stored[1])
 
+    @callback
     def _handle_conn(self, ok: bool) -> None:
         self._attr_available = ok
         self.async_write_ha_state()
 
+    @callback
     def _handle_update(self, is_active, raw) -> None:
         """Alt sınıflar override eder."""
         self.async_write_ha_state()
