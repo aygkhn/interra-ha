@@ -157,6 +157,7 @@ class InterraClient:
             return
         meta = env.get("meta") or {}
         rt = meta.get("requestType")
+        self._trace(rt, line)
         if meta.get("authID") and not self._auth:
             self._auth = meta["authID"]
             _LOGGER.info("Interra giriş başarılı")
@@ -175,6 +176,31 @@ class InterraClient:
                 self.on_doorbell(env.get("data"))
         elif rt in (REQ_STATUS, REQ_REGISTER):
             self._apply_status(env.get("data"))
+        else:
+            # TANI: beklenmeyen/işlenmeyen mesajları logla (kapı zili/interkom yapısını bulmak için)
+            _LOGGER.warning("Interra İŞLENMEYEN rt=%s: %s", rt, line[:400])
+
+    # TANI (birkaç gun): kapi zili/interkom mesaj yapisini yakalamak icin kalici log.
+    # Sadece ISLENMEYEN rt'ler + zil/interkom/kamera/ses anahtar kelimeli mesajlar yazilir
+    # (rutin durum pushlari DEGIL -> SD yipranmasi minimum). 15MB uzerinde yazmayi durdurur.
+    _TRACE_KW = ("bell", "intercom", "voicemail", "voice", "audio", "camera",
+                 "video", "diafon", "zil", "sip", "ringing")
+    _TRACE_PATH = "/config/interra-trafik.log"
+
+    def _trace(self, rt, line):
+        try:
+            handled = rt in (REQ_DB, REQ_STATUS, REQ_REGISTER, REQ_LOGIN)
+            low = line.lower()
+            if handled and not any(k in low for k in self._TRACE_KW):
+                return
+            import os
+            if os.path.exists(self._TRACE_PATH) and os.path.getsize(self._TRACE_PATH) > 15_000_000:
+                return
+            ts = time.strftime("%Y-%m-%d %H:%M:%S")
+            with open(self._TRACE_PATH, "a") as fh:
+                fh.write(f"{ts} rt={rt} {line[:1200]}\n")
+        except Exception:  # noqa: BLE001
+            pass
 
     def _apply_dump(self, data):
         locname = {l["id"]: (l.get("name") or "").strip() for l in data.get("locations", [])}
