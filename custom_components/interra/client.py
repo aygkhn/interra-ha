@@ -16,11 +16,14 @@ from .const import (
     ACK_INTERVAL,
     POLL_INTERVAL,
     COVER_TYPES,
+    FLAG_DOORBELL,
     OT_TO_FLAG,
     REQ_DB,
     REQ_DEVICE,
+    REQ_DOORBELL,
     REQ_LOGIN,
     REQ_REGISTER,
+    REQ_REGISTER_MSG,
     REQ_STATUS,
     SHOWN_TYPES,
     VALUE_KEYS,
@@ -53,6 +56,7 @@ class InterraClient:
         self.on_devices: Callable[[], None] | None = None
         self.on_state: Callable[[int, bool | None, str | None], None] | None = None
         self.on_connection: Callable[[bool], None] | None = None
+        self.on_doorbell: Callable[[object], None] | None = None  # kapı zili (502)
 
     # ---- yaşam döngüsü ----
     def start(self):
@@ -165,6 +169,10 @@ class InterraClient:
             return
         if rt == REQ_DB:
             self._apply_dump(env.get("data") or {})
+        elif rt == REQ_DOORBELL:
+            _LOGGER.warning("Interra KAPI ZİLİ (502): %s", env.get("data"))
+            if self.on_doorbell:
+                self.on_doorbell(env.get("data"))
         elif rt in (REQ_STATUS, REQ_REGISTER):
             self._apply_status(env.get("data"))
 
@@ -203,6 +211,10 @@ class InterraClient:
             if flag is not None:
                 self._send({"data": None, "meta": {"requestType": REQ_REGISTER, "authID": self._auth,
                             "flags": [{"id": flag, "value": True, "data": loc}]}})
+        # Kapı zili (global abonelik) — hem mesaj modülü (58) hem cihaz kaydı (19)
+        for req in (REQ_REGISTER_MSG, REQ_REGISTER):
+            self._send({"data": None, "meta": {"requestType": req, "authID": self._auth,
+                        "flags": [{"id": FLAG_DOORBELL, "value": True, "data": None}]}})
 
     def _apply_status(self, data):
         if data is None:

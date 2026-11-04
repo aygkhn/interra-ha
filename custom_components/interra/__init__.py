@@ -44,8 +44,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def _conn(ok):
         hass.loop.call_soon_threadsafe(async_dispatcher_send, hass, SIGNAL_CONN, ok)
 
+    def _doorbell(data):
+        # kapı zili: HA olayı tetikle (otomasyonlar bununla bildirim atar)
+        hass.loop.call_soon_threadsafe(
+            hass.bus.async_fire, "interra_doorbell", {"data": data}
+        )
+
     client.on_state = _state
     client.on_connection = _conn
+    client.on_doorbell = _doorbell
 
     client.start()
     # cihaz listesi gelsin diye (bloklamadan) bekle

@@ -35,6 +35,9 @@ REQ_DEVICE = 14
 REQ_STATUS = 20
 REQ_REGISTER = 19
 REQ_LOGIN = 500
+REQ_DOORBELL = 502        # panel kapı zili bildirimi (push)
+REQ_REGISTER_MSG = 58     # RegisterMessages (mesaj modülü aboneliği)
+FLAG_DOORBELL = 20        # SubscriptionFlag: Door Bell Feedback
 
 # objectType -> abonelik (SubscriptionFlags) id
 OT_TO_FLAG = {1: 1, 2: 3, 3: 2, 4: 6, 5: 17, 7: 5, 27: 1}
